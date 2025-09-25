@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timesheet Dashboard</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      /* KEEPING ALL YOUR EXISTING STYLES EXACTLY AS THEY ARE */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background-color: #f8fafc;
+        color: #1a202c;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2d3748;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .logout-btn {
+        background-color: #ef4444;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: background-color 0.2s;
+        text-decoration: none;
+      }
+
+      .logout-btn:hover {
+        background-color: #dc2626;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: #2563eb;
+      }
+
+      .btn-success {
+        background-color: #10b981;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-danger {
+        background-color: #ef4444;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-small {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+      }
+
+      .stat-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #1e293b;
+      }
+
+      .hourly-rate {
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        transition: background-color 0.2s;
+      }
+
+      .hourly-rate:hover {
+        background-color: #f1f5f9;
+      }
+
+      .rate-input {
+        width: 80px;
+        padding: 0.25rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.25rem;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .table th,
+      .table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .table th {
+        background-color: #f8fafc;
+        font-weight: 600;
+        color: #374151;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .table tr:hover {
+        background-color: #f8fafc;
+      }
+
+      .table tr.new-entry {
+        background-color: #ffd700;
+      }
+
+      .table tr.paid-row {
+        background-color: #f0fdf4 !important;
+      }
+
+      .editable {
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        transition: background-color 0.2s;
+        min-width: 80px;
+        display: inline-block;
+      }
+
+      .editable:hover {
+        background-color: #f1f5f9;
+      }
+
+      .edit-input {
+        width: 100%;
+        padding: 0.25rem;
+        border: 1px solid #3b82f6;
+        border-radius: 0.25rem;
+        font-size: inherit;
+      }
+
+      .amount-cell {
+        font-weight: 500;
+      }
+
+      .amount-positive {
+        color: #059669;
+      }
+
+      .amount-negative {
+        color: #dc2626;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #64748b;
+      }
+
+      .error {
+        background-color: #fef2f2;
+        color: #dc2626;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      /* ADDED: Status badge styling */
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .status-paid {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+
+      .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+
+      /* ADDED: Payday input styling */
+      .payday-input {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .payday-input input {
+        width: 80px;
+        padding: 0.25rem;
+        border: 1px solid #3b82f6;
+        border-radius: 0.25rem;
+      }
+
+      /* ADDED: Actions styling */
+      .actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: stretch;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .table-container {
+          overflow-x: auto;
+        }
+
+        .table {
+          min-width: 800px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useCallback } = React;
+
+      // Authentication check function
+      const checkAuth = async () => {
+        try {
+          const response = await axios.get('/api/entries.php');
+          return true;
+        } catch (error) {
+          if (error.response?.status === 401) {
+            window.location.href = '/login.php';
+            return false;
+          }
+          return true;
+        }
+      };
+
+      function TimesheetApp() {
+        const [entries, setEntries] = useState([]);
+        const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(null);
+        const [hourlyRate, setHourlyRate] = useState(18.0);
+        const [editingRate, setEditingRate] = useState(false);
+        // ADDED: Payday state
+        const [payingEntry, setPayingEntry] = useState(null);
+        const [payAmount, setPayAmount] = useState('');
+
+        // Check authentication on mount
+        useEffect(() => {
+          checkAuth().then(isAuth => {
+            if (isAuth) {
+              loadEntries();
+              loadHourlyRate();
+            }
+          });
+        }, []);
+
+        const loadEntries = useCallback(async () => {
+          try {
+            setLoading(true);
+            const response = await axios.get("/api/entries.php");
+            setEntries(response.data);
+            setError(null);
+          } catch (err) {
+            if (err.response?.status === 401) {
+              window.location.href = '/login.php';
+              return;
+            }
+            setError("Failed to load timesheet data");
+            console.error("Error loading entries:", err);
+          } finally {
+            setLoading(false);
+          }
+        }, []);
+
+        const loadHourlyRate = useCallback(async () => {
+          try {
+            const response = await axios.get("/api/settings.php");
+            if (response.data.hourly_rate) {
+              setHourlyRate(parseFloat(response.data.hourly_rate));
+            }
+          } catch (err) {
+            if (err.response?.status === 401) {
+              window.location.href = '/login.php';
+              return;
+            }
+            console.log("No saved hourly rate, using default");
+          }
+        }, []);
+
+        const saveHourlyRate = async (newRate) => {
+          try {
+            await axios.post("/api/settings.php", {
+              hourly_rate: newRate,
+            });
+            setHourlyRate(newRate);
+          } catch (err) {
+            if (err.response?.status === 401) {
+              window.location.href = '/login.php';
+              return;
+            }
+            console.error("Error saving hourly rate:", err);
+          }
+        };
+
+        const addNewEntry = async () => {
+          try {
+            const newEntry = {
+              date: "",
+              start_time: "10:30",
+              lunch_start: "12:00",
+              lunch_end: "12:00",
+              end_time: "15:30",
+              pay_rate: hourlyRate,
+              paid: 0.0,
+            };
+
+            await axios.post("/api/entries.php", newEntry);
+            loadEntries();
+          } catch (err) {
+            if (err.response?.status === 401) {
+              window.location.href = '/login.php';
+              return;
+            }
+            setError("Failed to add new entry");
+            console.error("Error adding entry:", err);
+          }
+        };
+
+        const updateEntry = async (id, field, value) => {
+          try {
+            const entry = entries.find((e) => e.id === id);
+            const updatedEntry = { ...entry, [field]: value };
+            await axios.put("/api/entries.php", updatedEntry);
+            loadEntries();
+          } catch (err) {
+            if (err.response?.status === 401) {
+              window.location.href = '/login.php';
+              return;
+            }
+            setError("Failed to update entry");
+            console.error("Error updating entry:", err);
+          }
+        };
+
+        // ADDED: Handle payday functionality
+        const handlePayday = async (id, amount) => {
+          try {
+            await updateEntry(id, 'paid', parseFloat(amount));
+            setPayingEntry(null);
+            setPayAmount('');
+          } catch (err) {
+            setError("Failed to process payment");
+            console.error("Error processing payment:", err);
+          }
+        };
+
+        const deleteEntry = async (id) => {
+          if (!confirm("Are you sure you want to delete this entry?")) return;
+
+          try {
+            await axios.delete("/api/entries.php", { data: { id } });
+            loadEntries();
+          } catch (err) {
+            if (err.response?.status === 401) {
+              window.location.href = '/login.php';
+              return;
+            }
+            setError("Failed to delete entry");
+            console.error("Error deleting entry:", err);
+          }
+        };
+
+        const exportCSV = () => {
+          const headers = [
+            "Date",
+            "Start Time",
+            "Lunch Start",
+            "Lunch End", 
+            "End Time",
+            "Hours Worked",
+            "Pay Rate",
+            "Amount Earned",
+            "Amount Paid",
+          ];
+
+          const csvData = entries.map((entry) => [
+            entry.date || "",
+            formatTime(entry.start_time),
+            formatTime(entry.lunch_start),
+            formatTime(entry.lunch_end),
+            formatTime(entry.end_time),
+            calculateHours(entry).toFixed(2),
+            `$${parseFloat(entry.pay_rate).toFixed(2)}`,
+            `$${calculateAmount(entry).toFixed(2)}`,
+            `$${parseFloat(entry.paid).toFixed(2)}`,
+          ]);
+
+          const csvContent = [headers, ...csvData]
+            .map((row) => row.map((field) => `"${field}"`).join(","))
+            .join("\n");
+
+          const blob = new Blob([csvContent], { type: "text/csv" });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `timesheet-export-${new Date().toISOString().split("T")[0]}.csv`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        };
+
+        const parseTime = (timeStr) => {
+          if (!timeStr) return 0;
+          const [hours, minutes] = timeStr.split(":").map(Number);
+          return hours + minutes / 60;
+        };
+
+        const formatTime = (timeStr) => {
+          if (!timeStr) return "";
+          
+          const [hours, minutes] = timeStr.split(":").map(Number);
+          const period = hours >= 12 ? "PM" : "AM";
+          const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+          
+          return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+        };
+
+        const calculateHours = (entry) => {
+          // Skip calculation for entries with missing date or key times
+          if (!entry.date || !entry.start_time || !entry.end_time) {
+            return 0;
+          }
+
+          const start = parseTime(entry.start_time);
+          const end = parseTime(entry.end_time);
+          const lunchStart = parseTime(entry.lunch_start) || 0;
+          const lunchEnd = parseTime(entry.lunch_end) || 0;
+
+          let totalHours = end - start;
+          if (lunchStart && lunchEnd && lunchEnd > lunchStart) {
+            totalHours -= lunchEnd - lunchStart;
+          }
+
+          return Math.max(0, totalHours);
+        };
+
+        const calculateAmount = (entry) => {
+          return calculateHours(entry) * parseFloat(entry.pay_rate || 0);
+        };
+
+        // Calculate totals only for entries with complete data
+        const completeEntries = entries.filter(entry => 
+          entry.date && entry.start_time && entry.end_time
+        );
+
+        const totalHours = completeEntries.reduce((sum, entry) => sum + calculateHours(entry), 0);
+        const totalEarned = completeEntries.reduce((sum, entry) => sum + calculateAmount(entry), 0);
+        const totalPaid = completeEntries.reduce((sum, entry) => sum + parseFloat(entry.paid || 0), 0);
+        const totalOwed = totalEarned - totalPaid;
+
+        const currentYear = new Date().getFullYear();
+        const yearlyEntries = completeEntries.filter((entry) => {
+          return entry.date && new Date(entry.date).getFullYear() === currentYear;
+        });
+        const yearlyEarned = yearlyEntries.reduce((sum, entry) => sum + calculateAmount(entry), 0);
+
+        if (loading) {
+          return <div className="loading">Loading timesheet...</div>;
+        }
+
+        return (
+          <div className="container">
+            <div className="header">
+              <h1 className="title">Timesheet Dashboard</h1>
+              <div className="header-actions">
+                <button onClick={addNewEntry} className="btn btn-primary">
+                  + Add Entry
+                </button>
+                <button onClick={exportCSV} className="btn btn-sm">
+                  Export CSV
+                </button>
+                <a href="/login.php?logout=1" className="logout-btn">
+                  Logout
+                </a>
+              </div>
+            </div>
+
+            {error && <div className="error">{error}</div>}
+
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Hourly Rate</div>
+                <div className="stat-value">
+                  {editingRate ? (
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={hourlyRate}
+                      onChange={(e) => setHourlyRate(parseFloat(e.target.value) || 0)}
+                      onBlur={() => {
+                        setEditingRate(false);
+                        saveHourlyRate(hourlyRate);
+                      }}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          setEditingRate(false);
+                          saveHourlyRate(hourlyRate);
+                        }
+                      }}
+                      className="rate-input"
+                      autoFocus
+                    />
+                  ) : (
+                    <span
+                      className="hourly-rate"
+                      onClick={() => setEditingRate(true)}
+                    >
+                      ${hourlyRate.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-label">Total Hours</div>
+                <div className="stat-value">{totalHours.toFixed(1)}h</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-label">Total Earned</div>
+                <div className="stat-value">${totalEarned.toFixed(2)}</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-label">Amount Owed</div>
+                <div className={`stat-value ${totalOwed >= 0 ? "amount-positive" : "amount-negative"}`}>
+                  ${totalOwed.toFixed(2)}
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-label">{currentYear} Earnings</div>
+                <div className="stat-value">${yearlyEarned.toFixed(2)}</div>
+              </div>
+            </div>
+
+            <div className="table-container">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Start</th>
+                    <th>Lunch Start</th>
+                    <th>Lunch End</th>
+                    <th>End</th>
+                    <th>Hours</th>
+                    <th>Rate</th>
+                    <th>Earned</th>
+                    <th>Paid</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entries.map((entry) => {
+                    const hours = calculateHours(entry);
+                    const pay = calculateAmount(entry);
+                    const paidAmount = parseFloat(entry.paid) || 0;
+                    const isComplete = entry.date && entry.start_time && entry.end_time;
+
+                    return (
+                      <tr 
+                        key={entry.id} 
+                        className={`${!isComplete ? "new-entry" : ""} ${paidAmount > 0 ? "paid-row" : ""}`}
+                      >
+                        <td>
+                          <EditableCell
+                            value={entry.date || ""}
+                            placeholder="--/--/2025"
+                            onSave={(value) => updateEntry(entry.id, "date", value)}
+                            type="date"
+                          />
+                        </td>
+                        <td>
+                          <EditableCell
+                            value={formatTime(entry.start_time)}
+                            onSave={(value) => {
+                              const [time] = value.split(" ");
+                              const [hours, minutes] = time.split(":");
+                              const hour24 = value.includes("PM") && hours !== "12" 
+                                ? parseInt(hours) + 12 
+                                : value.includes("AM") && hours === "12" 
+                                  ? 0 
+                                  : parseInt(hours);
+                              updateEntry(entry.id, "start_time", `${hour24}:${minutes}`);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <EditableCell
+                            value={formatTime(entry.lunch_start)}
+                            onSave={(value) => {
+                              const [time] = value.split(" ");
+                              const [hours, minutes] = time.split(":");
+                              const hour24 = value.includes("PM") && hours !== "12" 
+                                ? parseInt(hours) + 12 
+                                : value.includes("AM") && hours === "12" 
+                                  ? 0 
+                                  : parseInt(hours);
+                              updateEntry(entry.id, "lunch_start", `${hour24}:${minutes}`);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <EditableCell
+                            value={formatTime(entry.lunch_end)}
+                            onSave={(value) => {
+                              const [time] = value.split(" ");
+                              const [hours, minutes] = time.split(":");
+                              const hour24 = value.includes("PM") && hours !== "12" 
+                                ? parseInt(hours) + 12 
+                                : value.includes("AM") && hours === "12" 
+                                  ? 0 
+                                  : parseInt(hours);
+                              updateEntry(entry.id, "lunch_end", `${hour24}:${minutes}`);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <EditableCell
+                            value={formatTime(entry.end_time)}
+                            onSave={(value) => {
+                              const [time] = value.split(" ");
+                              const [hours, minutes] = time.split(":");
+                              const hour24 = value.includes("PM") && hours !== "12" 
+                                ? parseInt(hours) + 12 
+                                : value.includes("AM") && hours === "12" 
+                                  ? 0 
+                                  : parseInt(hours);
+                              updateEntry(entry.id, "end_time", `${hour24}:${minutes}`);
+                            }}
+                          />
+                        </td>
+                        <td>{calculateHours(entry).toFixed(1)}h</td>
+                        <td>
+                          <EditableCell
+                            value={`$${parseFloat(entry.pay_rate).toFixed(2)}`}
+                            onSave={(value) => {
+                              const numericValue = parseFloat(value.replace("$", ""));
+                              updateEntry(entry.id, "pay_rate", numericValue);
+                            }}
+                          />
+                        </td>
+                        <td className="amount-cell">
+                          ${calculateAmount(entry).toFixed(2)}
+                        </td>
+                        <td>
+                          <EditableCell
+                            value={`$${parseFloat(entry.paid).toFixed(2)}`}
+                            onSave={(value) => {
+                              const numericValue = parseFloat(value.replace("$", ""));
+                              updateEntry(entry.id, "paid", numericValue);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <span className={`status-badge ${paidAmount > 0 ? 'status-paid' : 'status-pending'}`}>
+                            {paidAmount > 0 ? `Paid $${paidAmount.toFixed(2)}` : 'Pending'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="actions">
+                            {paidAmount === 0 && (
+                              payingEntry === entry.id ? (
+                                <div className="payday-input">
+                                  <span>$</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    value={payAmount}
+                                    onChange={(e) => setPayAmount(e.target.value)}
+                                    placeholder={isComplete ? pay.toFixed(2) : '0.00'}
+                                  />
+                                  <button
+                                    className="btn-success btn-small"
+                                    onClick={() => handlePayday(entry.id, payAmount || (isComplete ? pay.toFixed(2) : '0.00'))}
+                                  >
+                                    ✓
+                                  </button>
+                                  <button
+                                    className="btn-danger btn-small"
+                                    onClick={() => {
+                                      setPayingEntry(null);
+                                      setPayAmount('');
+                                    }}
+                                  >
+                                    ✗
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  className="btn-success btn-small"
+                                  onClick={() => {
+                                    setPayingEntry(entry.id);
+                                    setPayAmount(isComplete ? pay.toFixed(2) : '0.00');
+                                  }}
+                                  title="Payday"
+                                  disabled={!isComplete}
+                                >
+                                  💰
+                                </button>
+                              )
+                            )}
+                            <button
+                              onClick={() => deleteEntry(entry.id)}
+                              className="btn-danger btn-small"
+                              title="Delete Entry"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
+
+      function EditableCell({ value, onSave, placeholder, type = "text" }) {
+        const [isEditing, setIsEditing] = useState(false);
+        const [editValue, setEditValue] = useState(value);
+
+        const handleSave = () => {
+          onSave(editValue);
+          setIsEditing(false);
+        };
+
+        const handleKeyPress = (e) => {
+          if (e.key === "Enter") {
+            handleSave();
+          } else if (e.key === "Escape") {
+            setEditValue(value);
+            setIsEditing(false);
+          }
+        };
+
+        if (isEditing) {
+          return (
+            <input
+              type={type}
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={handleKeyPress}
+              className="edit-input"
+              autoFocus
+            />
+          );
+        }
+
+        return (
+          <span
+            className="editable"
+            onClick={() => {
+              setIsEditing(true);
+              setEditValue(value);
+            }}
+          >
+            {value || placeholder}
+          </span>
+        );
+      }
+
+      ReactDOM.render(<TimesheetApp />, document.getElementById("root"));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+# Ignore everything in the root
+/*
+
+# But not the timesheet directory and its contents
+!/timesheet/
+!/timesheet/**
+
+# And not this .gitignore file itself
+!/.gitignore
+
+# Keep ignoring .DS_Store
+.DS_Store
