@@ -264,6 +264,7 @@
           (sum, entry) => sum + calculateHours(entry),
           0
         );
+
         const totalEarned = completeEntries.reduce(
           (sum, entry) => sum + calculateAmount(entry),
           0
@@ -273,6 +274,7 @@
           0
         );
         const totalOwed = totalEarned - totalPaid;
+        const unpaidHours = totalOwed / hourlyRate;
 
         const currentYear = new Date().getFullYear();
         const yearlyEntries = completeEntries.filter((entry) => {
@@ -355,7 +357,7 @@
               </div>
 
               <div className="stat-card">
-                <div className="stat-label">Amount Owed</div>
+                <div className="stat-label">$ Owed - taxes</div>
                 <div
                   className={`stat-value ${
                     totalOwed >= 0 ? "amount-positive" : "amount-negative"
@@ -364,9 +366,18 @@
                   ${totalOwed.toFixed(2)}
                 </div>
               </div>
-
               <div className="stat-card">
-                <div className="stat-label">{currentYear} Earnings</div>
+                <div className="stat-label">Unpaid Hours</div>
+                <div
+                  className={`stat-value ${
+                    unpaidHours >= 0 ? "amount-positive" : "amount-negative"
+                  }`}
+                >
+                  {unpaidHours.toFixed(1)}h
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">{currentYear} Gross Earnings</div>
                 <div className="stat-value">${yearlyEarned.toFixed(2)}</div>
               </div>
             </div>
