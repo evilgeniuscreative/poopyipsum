@@ -1,0 +1,314 @@
+$color_1: #1a202c;
+$color_2: #2d3748;
+$color_3: white;
+$color_4: #64748b;
+$color_5: #1e293b;
+$color_6: #374151;
+$color_7: #059669;
+$color_8: #dc2626;
+$color_9: #166534;
+$color_10: #92400e;
+$font-family_1: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+$background-color_1: #f8fafc;
+$background-color_2: #ef4444;
+$background-color_3: #dc2626;
+$background-color_4: #3b82f6;
+$background-color_5: #2563eb;
+$background-color_6: #10b981;
+$background-color_7: #f1f5f9;
+$background-color_8: #ffd700;
+$background-color_9: #f0fdf4;
+$background-color_10: #fef2f2;
+$background-color_11: #dcfce7;
+$background-color_12: #fef3c7;
+
+/* ADDED: Status badge styling */
+/* ADDED: Payday input styling */
+/* ADDED: Actions styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: $font-family_1;
+  background-color: $background-color_1;
+  color: $color_1;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: $color_2;
+}
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.logout-btn {
+  background-color: $background-color_2;
+  color: $color_3;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  &:hover {
+    background-color: $background-color_3;
+  }
+}
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background-color: $background-color_4;
+  color: $color_3;
+  &:hover {
+    background-color: $background-color_5;
+  }
+}
+.btn-success {
+  background-color: $background-color_6;
+  color: $color_3;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+.btn-danger {
+  background-color: $background-color_2;
+  color: $color_3;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+.btn-small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+.stat-label {
+  font-size: 0.875rem;
+  color: $color_4;
+  margin-bottom: 0.5rem;
+}
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: $color_5;
+}
+.hourly-rate {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: $background-color_7;
+  }
+}
+.rate-input {
+  width: 80px;
+  padding: 0.25rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.25rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.table-container {
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  th {
+    padding: 1rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: $background-color_1;
+    font-weight: 600;
+    color: $color_6;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  td {
+    padding: 1rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  tr {
+    &:hover {
+      background-color: $background-color_1;
+    }
+  }
+  tr.new-entry {
+    background-color: $background-color_8;
+  }
+  tr.paid-row {
+    background-color: $background-color_9 !important;
+  }
+}
+.col-date {
+  width: 145px;
+}
+.col-start_time {
+  width: 120px;
+}
+.col-pay_rate {
+  width: 80px;
+}
+.col-paid {
+  width: 80px;
+}
+.col-actions {
+  width: 120px;
+}
+.col-lunch_start {
+  width: 120px;
+}
+.col-lunch_end {
+  width: 120px;
+}
+.col-end_time {
+  width: 120px;
+}
+.col-hours {
+  width: 80px;
+}
+.col-earned {
+  width: 80px;
+}
+.col-paid {
+  width: 80px;
+}
+td > span,
+td > input {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.editable {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+  width: 100%;
+  display: inline-block;
+  &:hover {
+    background-color: $background-color_7;
+  }
+}
+.edit-input {
+  width: 100%;
+  padding: 0.25rem;
+  border: 1px solid #3b82f6;
+  border-radius: 0.25rem;
+  font-size: inherit;
+}
+.amount-cell {
+  font-weight: 500;
+}
+.amount-positive {
+  color: $color_7;
+}
+.amount-negative {
+  color: $color_8;
+}
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: $color_4;
+}
+.error {
+  background-color: $background-color_10;
+  color: $color_8;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.status-paid {
+  background-color: $background-color_11;
+  color: $color_9;
+}
+.status-pending {
+  background-color: $background-color_12;
+  color: $color_10;
+}
+.payday-input {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  input {
+    width: 80px;
+    padding: 0.25rem;
+    border: 1px solid #3b82f6;
+    border-radius: 0.25rem;
+  }
+}
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .table-container {
+    overflow-x: auto;
+  }
+  .table {
+    min-width: 800px;
+  }
+}
